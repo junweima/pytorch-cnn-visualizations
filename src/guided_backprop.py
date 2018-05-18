@@ -6,7 +6,7 @@ Created on Thu Oct 26 11:23:47 2017
 import torch
 from torch.nn import ReLU
 
-from misc_functions import (get_params,
+from misc_functions import (get_params_custom,
                             convert_to_grayscale,
                             save_gradient_images,
                             get_positive_negative_saliency)
@@ -64,22 +64,22 @@ class GuidedBackprop():
 
 
 if __name__ == '__main__':
-    target_example = 0  # Snake
+    target_example = 3  # skin
     (original_image, prep_img, target_class, file_name_to_export, pretrained_model) =\
-        get_params(target_example)
+        get_params_custom(target_example)
 
     # Guided backprop
     GBP = GuidedBackprop(pretrained_model)
     # Get gradients
     guided_grads = GBP.generate_gradients(prep_img, target_class)
     # Save colored gradients
-    save_gradient_images(guided_grads, file_name_to_export + '_Guided_BP_color')
+    save_gradient_images(guided_grads, file_name_to_export + '_Guided_BP_color_skin')
     # Convert to grayscale
     grayscale_guided_grads = convert_to_grayscale(guided_grads)
     # Save grayscale gradients
-    save_gradient_images(grayscale_guided_grads, file_name_to_export + '_Guided_BP_gray')
+    save_gradient_images(grayscale_guided_grads, file_name_to_export + '_Guided_BP_gray_skin')
     # Positive and negative saliency maps
     pos_sal, neg_sal = get_positive_negative_saliency(guided_grads)
-    save_gradient_images(pos_sal, file_name_to_export + '_pos_sal')
-    save_gradient_images(neg_sal, file_name_to_export + '_neg_sal')
+    save_gradient_images(pos_sal, file_name_to_export + '_pos_sal_skin')
+    save_gradient_images(neg_sal, file_name_to_export + '_neg_sal_skin')
     print('Guided backprop completed')
