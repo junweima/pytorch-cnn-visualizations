@@ -49,14 +49,16 @@ class GuidedBackprop():
 
     def generate_gradients(self, input_image, target_class):
         # Forward pass
-        model_output = self.model(input_image)
+        # model_output = self.model(input_image)
+        score_preds, ethn_pred = self.model(input_image)
+        print(score_preds, ethn_pred)
         # Zero gradients
         self.model.zero_grad()
         # Target for backprop
-        one_hot_output = torch.FloatTensor(1, model_output.size()[-1]).zero_()
-        one_hot_output[0][target_class] = 1
+        one_hot_output = torch.FloatTensor(1, score_preds.size()[-1]).zero_()
+        one_hot_output[0][target_class] = 1 
         # Backward pass
-        model_output.backward(gradient=one_hot_output)
+        score_preds.backward(gradient=one_hot_output)
         # Convert Pytorch variable to numpy array
         # [0] to get rid of the first channel (1,3,224,224)
         gradients_as_arr = self.gradients.data.numpy()[0]
@@ -64,7 +66,7 @@ class GuidedBackprop():
 
 
 if __name__ == '__main__':
-    target_example = 3  # skin
+    target_example = 4  # skin
     (original_image, prep_img, target_class, file_name_to_export, pretrained_model) =\
         get_params_custom(target_example)
 

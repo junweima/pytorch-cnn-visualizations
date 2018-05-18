@@ -10,8 +10,9 @@ import numpy as np
 
 import torch
 from torch.autograd import Variable
-from torchvision import models
-
+# from torchvision import models
+from models.ScoreEthnicityMultiSignModel import ScoreEthnicityMultiSignModel
+import pdb
 
 def convert_to_grayscale(cv2im):
     """
@@ -76,7 +77,7 @@ def save_class_activation_on_image(org_img, activation_map, file_name):
     cv2.imwrite(path_to_file, np.uint8(255 * img_with_heatmap))
 
 
-def preprocess_image(cv2im, resize_im=True):
+def preprocess_image(cv2im, resize_im=False):
     """
         Processes image for CNNs
 
@@ -204,21 +205,29 @@ def get_params_custom(example_index):
     example_list = [['../input_images/snake.jpg', 56],
                     ['../input_images/cat_dog.png', 243],
                     ['../input_images/spider.png', 72],
-                    ['../input_images/SVichyDProof2013_VCAU00022141_DPORI_ZWF_P688778_AFF_T00.jpg', 9],
+                    ['../input_images/SVichyDProof2013_VCAU00022141_DPORI_ZWF_P688778_AFF_T00.jpg', 3],
+                    ['../input_images/SSkinSaverChina2016_VCHI00014662_DPORI_ZWF_P97904529A_AFF_T01.jpeg', 3],
                     ]
     selected_example = example_index
     img_path = example_list[selected_example][0]
     
-    target_score = example_list[selected_example][1]
+    target_class = example_list[selected_example][1]
     file_name_to_export = img_path[img_path.rfind('/')+1:img_path.rfind('.')]
     # Read image
     original_image = cv2.imread(img_path, 1)
+    if original_image is None:
+        print('image not found')
     # Process image
     prep_img = preprocess_image(original_image)
     # Define model
-    pretrained_model = models.alexnet(pretrained=True)
+    # pretrained_model = models.alexnet(pretrained=True)
+    model = ScoreEthnicityMultiSignModel(n_ethn=4)
+    # if torch.cuda.is_available():
+    #    model.cuda()
+    model_path = '/home/jeremy/test/ours2/saved_runs/HH_1526514511/model.pth'
+    model.load_state_dict(torch.load(model_path, map_location=lambda storage, location: storage))
     return (original_image,
             prep_img,
-            target_score,
+            target_class,
             file_name_to_export,
-            pretrained_model)
+            model)
